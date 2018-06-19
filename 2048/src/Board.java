@@ -17,7 +17,7 @@ public class Board extends JFrame implements Runnable,KeyListener
 	
 	boolean endGame = false;
 	boolean isStuck = false;
-	private static boolean flag = false;
+	private boolean flag = false;
     private int id = 0;
 	private static Block[][] block = new Block[ind_x][ind_y];
 	private static Image screen;
