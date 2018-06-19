@@ -56,6 +56,7 @@ public class Board extends JFrame implements Runnable,KeyListener
 		}
 		generateLevel();
 	}
+	//start the level with all tiles empty and add 2 tiles in random position
 	public void generateLevel()
 	{
 		for (int x = 0 ; x<ind_x ; x++)
@@ -68,6 +69,7 @@ public class Board extends JFrame implements Runnable,KeyListener
 		addBlock();
 		addBlock();
 	}
+	//adding a block in random position
 	public void addBlock()
 	{
 		int x,y;
