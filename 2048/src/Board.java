@@ -15,9 +15,13 @@ public class Board extends JFrame implements Runnable,KeyListener
 	private static int ind_x=4;
 	private static int ind_y=4;
 	
+	private int left = 0;
+	private int right = 0;
+	private int up = 0;
+	private int down = 0;
 	boolean endGame = false;
 	boolean isStuck = false;
-	private boolean flag = false;
+	private boolean isEmptyTile = false;
     private int id = 0;
 	private static Block[][] block = new Block[ind_x][ind_y];
 	private static Image screen;
@@ -56,7 +60,6 @@ public class Board extends JFrame implements Runnable,KeyListener
 		}
 		generateLevel();
 	}
-	//start the level with all tiles empty and add 2 tiles in random position
 	public void generateLevel()
 	{
 		for (int x = 0 ; x<ind_x ; x++)
@@ -69,19 +72,18 @@ public class Board extends JFrame implements Runnable,KeyListener
 		addBlock();
 		addBlock();
 	}
-	//adding a block in random position
 	public void addBlock()
 	{
 		int x,y;
-		boolean flag = true;
+		boolean isEmptyTile = true;
 		Random rand = new Random();
-		while (flag)
+		while (isEmptyTile)
 		{
 			x = rand.nextInt(4);
 			y = rand.nextInt(4);
 			if (block[x][y].getId() == Tile.getId(0))
 			{
-				flag = false;
+				isEmptyTile = false;
 				block[x][y].setId(1);
 			}
 		}
@@ -146,11 +148,14 @@ public class Board extends JFrame implements Runnable,KeyListener
 			block[row][col].setId(Tile.getId(0));    	
     	}
     }
-    public void setFlag(boolean flag)
+    public void setIsEmptyTile(boolean isEmptyTile)
     {
-    	this.flag = flag;
+    	this.isEmptyTile = isEmptyTile;
     }
-    
+    public void skipEmptyTiles(int targetRow,int targetCol)
+    {
+    	
+    }
     public void movements(int left,int right,int up, int down)
     {
     	if (endGame == false)
@@ -165,8 +170,9 @@ public class Board extends JFrame implements Runnable,KeyListener
 					if (block[row][col].getId() != Tile.getId(0))
 					{
 						int targetRow = row-up+down;
-						int targetCol = col-left+right;
+						int  targetCol = col-left+right;
 						//skip the empty tiles direct to the occupied ones
+						skipEmptyTiles(targetRow,targetCol);
 						while  		(
 							    		(
 							    				(    (targetCol > 0) && (targetCol<3) && (left+right >0)  ) 
@@ -188,7 +194,7 @@ public class Board extends JFrame implements Runnable,KeyListener
 						{
 							if(isStuck== false)
 								metZero(row,col,targetRow,targetCol);
-							setFlag(true);
+							setIsEmptyTile(true);
 						}
 						//if destination tile is not empty
 						else
@@ -198,7 +204,7 @@ public class Board extends JFrame implements Runnable,KeyListener
 							{
 								if(isStuck== false)
 									metIdentical(row, col, targetRow, targetCol);
-								setFlag(true);
+								setIsEmptyTile(true);
 							}
 							//if destination tile isn't equal to current tile
 							else 
@@ -211,7 +217,7 @@ public class Board extends JFrame implements Runnable,KeyListener
 								{
 									if(isStuck== false)
 										metZero(row,col,targetRow+up-down,targetCol+left-right);
-									setFlag(true);
+									setIsEmptyTile(true);
 								}
 							}
 						}
@@ -242,17 +248,33 @@ public class Board extends JFrame implements Runnable,KeyListener
     	}
     	return false;
     }
+    public void initDirections()
+    {
+    	left = 0;
+    	right = 0;
+    	up = 0;
+    	down = 0;
+    }
     public boolean checkLost()
     {
     	isStuck = true;
-    	movements(1,0,0,0);
-    	movements(0,1,0,0);
-    	movements(0,0,1,0);
-    	movements(0,0,0,1);
-    	if(!flag)
+    	initDirections();
+    	left = 1;
+    	movements(left,right,up,down);
+    	left = 0;
+    	right = 1;
+    	movements(left,right,up,down);
+    	right = 0;
+    	up = 1;
+    	movements(left,right,up,down);
+    	up = 0;
+    	down = 1;
+    	movements(left,right,up,down);
+    	down = 0;
+    	if(!isEmptyTile)
     		return true;
     	isStuck = false;
-    	setFlag(false);
+    	setIsEmptyTile(false);
     	return false;
     }
     public void checkEndGame()
@@ -262,56 +284,48 @@ public class Board extends JFrame implements Runnable,KeyListener
     	if (checkVictory())
     		victory();
     }
+    public void endTurn()
+    {
+    	render();
+		if(isEmptyTile)
+		{
+			addBlock();
+			render();
+			setIsEmptyTile(false);
+		}
+		checkEndGame();
+    }
 	@Override
 	public void keyPressed(KeyEvent e) 
 	{
 		if(e.getKeyCode() == KeyEvent.VK_LEFT)
 		{
-			movements(1,0,0,0);
-			render();
-			if(flag)
-			{
-				addBlock();
-				render();
-				setFlag(false);
-			}
-			checkEndGame();
+			left = 1;
+			movements(left,right,up,down);
+			endTurn();
+			left = 0;
 		}
 		if(e.getKeyCode() == KeyEvent.VK_RIGHT)
 		{
-			movements(0,1,0,0);
-			render();
-			if(flag)
-			{
-				addBlock();
-				render();
-				setFlag(false);
-			}
-			checkEndGame();
+			right = 1;
+			movements(left,right,up,down);
+			endTurn();
+			right = 0;
+
 		}
 		if(e.getKeyCode() == KeyEvent.VK_UP)
 		{
-			movements(0,0,1,0);
-			render();
-			if(flag)
-			{
-				addBlock();
-				render();
-				setFlag(false);
-			}
-			checkEndGame();
+			up = 1;
+			movements(left,right,up,down);
+			endTurn();
+			up = 0;
 		}
 		if(e.getKeyCode() == KeyEvent.VK_DOWN)
 		{
-			movements(0,0,0,1);
-			render();
-			if(flag)
-			{
-				addBlock();
-				render();
-				setFlag(false);
-			}
-			checkEndGame();
+			down = 1;
+			movements(left,right,up,down);
+			endTurn();
+			down = 0;
 		}
 	}
 	@Override
