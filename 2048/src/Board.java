@@ -152,10 +152,6 @@ public class Board extends JFrame implements Runnable,KeyListener
     {
     	this.isEmptyTile = isEmptyTile;
     }
-    public void skipEmptyTiles(int targetRow,int targetCol)
-    {
-    	
-    }
     public void movements(int left,int right,int up, int down)
     {
     	if (endGame == false)
@@ -172,7 +168,6 @@ public class Board extends JFrame implements Runnable,KeyListener
 						int targetRow = row-up+down;
 						int  targetCol = col-left+right;
 						//skip the empty tiles direct to the occupied ones
-						skipEmptyTiles(targetRow,targetCol);
 						while  		(
 							    		(
 							    				(    (targetCol > 0) && (targetCol<3) && (left+right >0)  ) 
